@@ -16,8 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='index'),
+
+    path("@<slug:username>", views.profile, name="profile"),
+
+    path('post/', views.post, name='post'),
+
+    path("account/", views.account, name="account"),
+    path("account/", include("django.contrib.auth.urls")),
+    path('account/signup/', views.signup, name="signup"),
+
     path('', include("webfinger.urls")),
 ]

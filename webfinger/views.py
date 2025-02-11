@@ -1,42 +1,47 @@
 from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
-from django.shortcuts import render
-from urllib.parse import urlparse
+from django.core.validators import validate_email
 import re
 
-# Create your views here.
-userPart = re.compile(r"")
+from django.utils.http import _urlsplit
+from django.utils.ipv6 import ValidationError
 
-ALPHA = "([A-Z]|[a-z])" # ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
-DIGIT = "\d" # DIGIT = %x30-39 ; 0-9
-HEXDIG = "\x" # HEXDIG =  DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+from app.settings import HOSTNAME
 
-unreserved = re.compile(r"") # unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
-sub_delims = re.compile(r"") # sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-pct_encoded = re.compile(r"%") # pct-encoded = "%" HEXDIG HEXDIG
-
-host = re.compile(r"")
-userPart = re.compile(r"[\w\-\.~]|[\!\$\&\'\(\)\*\+\,\;\=]")
-acctURI = re.compile(f"{userPart}@{host}")
+# acct URI spec
+# https://datatracker.ietf.org/doc/html/rfc7565
+# other referanced specs
+# https://datatracker.ietf.org/doc/html/rfc5234
+# https://datatracker.ietf.org/doc/html/rfc3986
 
 def webfinger(request):
     match request.method:
         case "GET":
             resource = request.GET.get('resource')
+            split = _urlsplit(resource)
+
             if not resource:
                 return HttpResponseBadRequest(b"no resource provided")
+            elif split.scheme != "acct":
+                return HttpResponseBadRequest(b"resource not acct URI")
 
-            parse = urlparse(resource)
-
-            if parse.scheme != "acct":
-                pass
-            
-
-
+            try:
+                validate_email(split.path)
+            except ValidationError:
+                return HttpResponseBadRequest(b"invalid URI")
+            user, host = re.split(r"@", split.path)
+            if host != HOSTNAME and False: # remove when testing in remove
+                return HttpResponseBadRequest(b"User not present of this domain")
+                
             rel = request.GET.getlist('rel')
+
+            # query user stuff
+
 
             return JsonResponse({
                 "subject": resource,
-                "parse": parse.path,
+                "parse": split,
+                "user": user,
+                "host": host,
 
                 "links": {
                     "rel": rel,

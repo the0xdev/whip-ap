@@ -1,0 +1,14 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>whip-ap</title>
+    <meta charset="utf-8">
+  </head>
+  {% block navbar %}
+  {% include 'app/navbar.html' %}
+  {% endblock %}
+  <body>
+    {% block body %} {% endblock %}
+  </body>
+</html>
