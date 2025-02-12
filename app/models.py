@@ -5,6 +5,7 @@ from uuid import uuid4
 
 class Actor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    username = models.CharField(max_length=256)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
 class Object(models.Model):
