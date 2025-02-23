@@ -30,5 +30,6 @@ urlpatterns = [
     path("account/", include("django.contrib.auth.urls")),
     path('account/signup/', views.signup, name="signup"),
 
+    path('', include("activitypub.urls")),
     path('', include("webfinger.urls")),
 ]

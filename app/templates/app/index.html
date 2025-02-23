@@ -1,8 +1,13 @@
 {% extends "app/base.html" %}
 {% block body %}
-{{ob}}
-<p>Hello, World!</p>
+
+{% for post in posts %}
+<p>{{ post.content }}</p>
+{% endfor %}   
 {% if request.user.is_authenticated %}
+<p>Hello, {{ user.username }}!</p>
 <a href="{% url 'post' %}">post</a>
+{% else %}
+<p>Hello, World!</p>
 {% endif %}
 {% endblock %}

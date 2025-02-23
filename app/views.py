@@ -4,8 +4,11 @@ from app.forms import ObjectForm, UserRegerstartionForm
 from app.models import Object
 
 def index(request):
-    return render(request, "app/index.html", {
-    })
+    context = {
+        "posts": Object.objects.all()[:10],
+        
+    }
+    return render(request, "app/index.html", context)
 
 def signup(request):
     context = {
@@ -19,14 +22,16 @@ def signup(request):
             if form.is_valid() and form.is_valid():
                 user = form.save()
                 login(request, user)
-                return redirect("index")
+                return render(request, "app/index.html")
             else:
                 return render(request, "app/signup.html", context)
         case _:
             return redirect("index")
 
 def post(request):
-    context = {"form": ObjectForm()}
+    context = {
+        "form": ObjectForm()
+    }
     match request.method:
         case "GET":
             return render(request, "app/post.html", context)
