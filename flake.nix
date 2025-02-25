@@ -1,5 +1,5 @@
 {
-  description = "my eternally W.I.P ActivityPub server.";
+  description = "my eternally work in proccess activitypub server";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";
@@ -22,6 +22,7 @@
           src = ./.;
           buildInputs = with python312Packages; [
             django
+            markdown
           ];
 
           nativeBuildInputs = with python312Packages; [

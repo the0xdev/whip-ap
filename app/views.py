@@ -1,10 +1,14 @@
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
-from app.forms import ObjectForm, UserRegerstartionForm
-from app.models import Object
+from django.urls import reverse
+from app.forms import ActorForm, ObjectForm
+from app.models import Activity, Object
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth.forms import UserCreationForm
 
 def index(request):
-    posts = Object.objects.all()[:10]
+    posts = Object.objects.all()[:20]
 
     context = {
         "posts": posts,
@@ -14,23 +18,26 @@ def index(request):
 
 def signup(request):
     context = {
-        "form": UserRegerstartionForm(),
+        "form": UserCreationForm(),
     }
     match request.method:
         case "GET":
             return render(request, "app/signup.html", context)
         case "POST":
-            form = UserRegerstartionForm(request.POST)
-            if form.is_valid() and form.is_valid():
+            form = UserCreationForm(request.POST)
+            if form.is_valid():
                 user = form.save()
                 login(request, user)
-                return render(request, "app/index.html")
+                return redirect("index")
             else:
                 return render(request, "app/signup.html", context)
         case _:
             return redirect("index")
 
-def post(request):
+
+@login_required()
+def post(request, **kwargs):
+    obj = kwargs["obj"]
     context = {
         "form": ObjectForm()
     }
@@ -40,7 +47,18 @@ def post(request):
         case "POST":
             form = ObjectForm(request.POST)
             if form.is_valid():
-                new = form.save()
+                obj = form.save(commit=False)
+                obj.attributedTo = request.user
+                obj.source = form.cleaned_data['source']
+
+                activity = Activity.objects.create(
+                    type="Create",
+                    actor=request.user,
+                    object=reverse("object", args=[obj.id])
+                )
+
+                obj.save()
+                activity.save()
                 return redirect("index")
             else:
                 return render(request, "app/post.html", context)
