@@ -4,8 +4,10 @@ from app.forms import ObjectForm, UserRegerstartionForm
 from app.models import Object
 
 def index(request):
+    posts = Object.objects.all()[:10]
+
     context = {
-        "posts": Object.objects.all()[:10],
+        "posts": posts,
         
     }
     return render(request, "app/index.html", context)

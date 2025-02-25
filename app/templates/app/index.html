@@ -3,9 +3,12 @@
 
 {% for post in posts %}
 <p>{{ post.content }}</p>
-{% endfor %}   
+<p>{{ post.id }}</p>
+{% endfor %}
+
 {% if request.user.is_authenticated %}
 <p>Hello, {{ user.username }}!</p>
+<p>uuid, {{ user.actor.id }}</p>
 <a href="{% url 'post' %}">post</a>
 {% else %}
 <p>Hello, World!</p>
