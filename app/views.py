@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
 from django.urls import reverse

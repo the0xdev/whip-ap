@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 {
   description = "my eternally work in proccess activitypub server";
   inputs = {

@@ -1,0 +1,36 @@
+{% comment 'SPDX-FileCopyrightText' %}
+SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+{% endcomment %}
+
+{% load app_extras %}
+ <section>
+ <div>
+   <a href="{% url 'profile' obj.attributedTo %}">
+     {{ obj.attributedTo }}
+   </a>
+ </div>
+
+ <div>
+{{ obj.source | escape | md }}
+ </div>
+
+ <div>
+   <a href="{% url 'post' %}">update</a>
+   <a href="#">delete</a>
+
+   <p>Reply</p>
+
+<form method="post" action="{% url 'activity-create' %}?obj={{ obj.id }}&type=Like">
+{% csrf_token %}
+<input type="submit" value="like">
+</form>
+
+<form method="post" action="{% url 'activity-create' %}?obj={{ obj.id }}&type=Announce">
+{% csrf_token %}
+<input type="submit" value="boost">
+</form>
+   <a href="{% url 'object' obj.id %}">link</a>
+ </div>
+</section>

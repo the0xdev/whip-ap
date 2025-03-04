@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.core.validators import validate_email
 import re
