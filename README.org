@@ -1,0 +1,17 @@
+* whip-ap
+A simple [[https://www.djangoproject.com/][Django]] web server that implements the [[https://activitypub.rocks/][ActivityPub]] protocol.
+** Development
+This project uses [[https://nixos.org/][nix]] for its development environment and builds. Along with
+[[https://direnv.net/][direnv]].  If you have both of those installed and setup just use ~nix run~ to get
+the server up an running on [[localhost:8000]].
+** Deploying
+This project isn't ready for and production use. It's just a hobby project I've
+got going on. Though I appreciate the interest.
+** Copyright/Licensing
+Copyright (C) 2025 Imran M
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
