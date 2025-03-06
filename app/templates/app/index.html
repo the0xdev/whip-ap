@@ -7,10 +7,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% endcomment %}
 
 {% block body %}
-
-{% for post in posts %}
-<p>{{ post.content }}</p>
-<p>{{ post.id }}</p>
+ 
+<hr/>
+{% for p in posts %}
+{% include 'app/obj.html' with obj=p %}
+<hr/>
 {% endfor %}
 
 {% if request.user.is_authenticated %}

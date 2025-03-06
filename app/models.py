@@ -36,13 +36,13 @@ class Object(models.Model):
     name = models.TextField(blank=True)
     #Image = None
     inReplyTo = models.URLField(max_length=256, blank=True, editable=False)
-    publishedDate = models.DateField(auto_now_add=True) 
-    publishedTime = models.TimeField(auto_now_add=True) 
+    published = models.DateTimeField(auto_now_add=True) 
     #summary = models.TextField(blank=True)
     #tag = None
-    updatedDate = models.DateField(auto_now=True) 
-    updatedTime = models.TimeField(auto_now=True) 
+    updated = models.DateTimeField(auto_now=True) 
     #url = models.URLField(max_length=256, blank=True)
+
+    
 
     to = None
     bto = None
@@ -75,3 +75,5 @@ class Activity(models.Model):
     )
     actor = models.ForeignKey(User, on_delete=models.CASCADE)
     object = models.URLField(max_length=256)
+
+    published = models.DateTimeField(auto_now_add=True) 

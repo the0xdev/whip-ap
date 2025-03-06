@@ -16,21 +16,23 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {{ obj.source | escape | md }}
  </div>
 
+{% if request.user.is_authenticated %}
  <div>
    <a href="{% url 'post' %}">update</a>
    <a href="#">delete</a>
 
    <p>Reply</p>
 
-<form method="post" action="{% url 'activity-create' %}?obj={{ obj.id }}&type=Like">
-{% csrf_token %}
-<input type="submit" value="like">
-</form>
+   <form method="post" action="{% url 'object' obj.id %}?type=Like">
+     {% csrf_token %}
+     <input type="submit" value="like">
+   </form>
 
-<form method="post" action="{% url 'activity-create' %}?obj={{ obj.id }}&type=Announce">
-{% csrf_token %}
-<input type="submit" value="boost">
-</form>
+   <form method="post" action="{% url 'object' obj.id %}?type=Announce">
+     {% csrf_token %}
+     <input type="submit" value="boost">
+   </form>
    <a href="{% url 'object' obj.id %}">link</a>
  </div>
+{% endif %}
 </section>

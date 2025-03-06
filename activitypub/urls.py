@@ -4,9 +4,11 @@
 
 from django.urls import path
 from activitypub import views
+from app.models import Object
 
 urlpatterns = [
     path('object/<uuid:uuid>', views.object, name="object"),
+
     path('activity/<uuid:uuid>', views.activity, name="activity"),
 
     path('actor/<uuid:uuid>', views.actor, name="actor"),
