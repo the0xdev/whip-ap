@@ -7,12 +7,18 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from app.forms import ActorForm, ObjectForm
 from app.models import Activity, Object
+
+from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.forms import UserCreationForm
 
 def index(request):
-    posts = Object.objects.all()[:20]
+
+    try:
+        posts = Object.objects.all()[:20]
+    except ObjectDoesNotExist:
+        posts = [] 
 
     context = {
         "posts": posts,
