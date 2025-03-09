@@ -1,11 +1,15 @@
 <!-- SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net> -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
 {% load static %}
+{% load django_htmx %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>whip-ap</title>
     <meta charset="utf-8">
+
+    <script src="{% static 'htmx.js' %}"></script>
+    {% django_htmx_script %}
   </head>
   {% block navbar %}
   {% include 'app/navbar.html' %}

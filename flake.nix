@@ -26,6 +26,7 @@
           src = ./.;
           buildInputs = with python312Packages; [
             django
+            django-htmx
             markdown
           ];
 
