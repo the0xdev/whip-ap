@@ -16,7 +16,7 @@ from django.contrib.auth.forms import UserCreationForm
 def index(request):
 
     try:
-        posts = Object.objects.all()[:20]
+        posts = Object.objects.filter(tomb=False)[:20]
     except ObjectDoesNotExist:
         posts = [] 
 

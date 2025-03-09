@@ -32,6 +32,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
      {% csrf_token %}
      <input type="submit" value="boost">
    </form>
+
+   <form method="post" action="{% url 'object' obj.id %}?type=Delete">
+     {% csrf_token %}
+     <input type="submit" value="delete">
+   </form>
+
    <a href="{% url 'object' obj.id %}">link</a>
  </div>
 {% endif %}

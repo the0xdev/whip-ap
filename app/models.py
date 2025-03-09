@@ -42,7 +42,7 @@ class Object(models.Model):
     updated = models.DateTimeField(auto_now=True) 
     #url = models.URLField(max_length=256, blank=True)
 
-    
+    tomb = models.BooleanField(default=False)
 
     to = None
     bto = None
@@ -51,7 +51,14 @@ class Object(models.Model):
 
     def save(self, *args, **kwargs):
         self.content = markdown(escape(self.source))
-        super(Object, self).save(*args, **kwargs) # Call the "real" save() method.
+        super(Object, self).save(*args, **kwargs)
+
+    def entomb(self):
+        self.source = ""
+        self.inReplyTo = ""
+
+        self.tomb = True
+        super(Object, self).save()
 
 class Activity(models.Model):
     activity_type = [

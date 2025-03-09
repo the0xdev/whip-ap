@@ -3,24 +3,25 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 from django.db.models import ObjectDoesNotExist
-from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
-from django.shortcuts import redirect
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from app.models import Activity, Object, Actor
 import markdown
 
 def object(request, uuid):
+    obj = get_object_or_404(Object, id=uuid)
     match request.method:
         case "GET":
-            obj = Object.objects.get(id=uuid)
-            if False:
+            if obj.tomb:
                 return JsonResponse({
                     "@context": "https://www.w3.org/ns/activitystreams",
                     "type": "Tombstone",
-                    "id": reverse("object", args=[uuid]),
+                    "id": reverse("object", args=[obj.id]),
                     "formertype": "Note",
 
-                    "deleted": f"{obj.updatedDate}T{obj.updatedTime}Z",
+                    "published": obj.published,
+                    "deleted": obj.updated,
 
                 })
             else:
@@ -60,7 +61,7 @@ def object(request, uuid):
                         interactions = Activity.objects.filter(
                             type=act_type,
                             actor=request.user,
-                            object=reverse("object", args=[uuid])
+                            object=reverse("object", args=[obj.id])
                         ).latest('published')
                         undos = Activity.objects.filter(
                             type="Undo",
@@ -80,7 +81,7 @@ def object(request, uuid):
                         activity = Activity.objects.create(
                             type=act_type,
                             actor=request.user,
-                            object=reverse("object", args=[uuid])
+                            object=reverse("object", args=[obj.id])
                         )
                     else:
                         print("undo")
@@ -92,7 +93,17 @@ def object(request, uuid):
                     return redirect("index")
 
                 case "Delete":
-                    pass
+                    if request.user == obj.attributedTo:
+                        obj.entomb()
+                        activity = Activity.objects.create(
+                            type="Delete",
+                            actor=request.user,
+                            object=reverse("object", args=[obj.id])
+                        )
+                    else:
+                        return HttpResponseForbidden()
+
+                    return redirect("index")
                 case _:
                     return HttpResponseBadRequest()
             pass
