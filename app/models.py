@@ -10,6 +10,8 @@ from django.db.models.signals import post_save
 from django.utils.html import escape
 from markdown import markdown 
 
+from django.urls import reverse
+
 class Actor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     uuid = models.UUIDField(unique=True, default=uuid4, editable=False)
@@ -59,6 +61,45 @@ class Object(models.Model):
 
         self.tomb = True
         super(Object, self).save()
+
+    def to_obj(self):
+        if self.tomb:
+            return {
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "type": "Tombstone",
+                "id": reverse("object", args=[self.id]),
+                "formertype": "Note",
+                "published": obj.published,
+                "deleted": obj.updated,
+            }
+        else:
+           return {
+               "@context": "https://www.w3.org/ns/activitystreams",
+                    "type": "Note",
+                    "id": reverse("object", args=[self.id]),
+                    #"attachment": "",
+                    "attributedTo": reverse("actor", args=[self.attributedTo.actor.uuid]),
+                    #"audience": "",
+                    "content": self.content,
+                    "source": {
+                        "content": self.source,
+                        "mediaType": "text/markdown"
+                    },
+                    #"name": "",
+                    #"Image": "",
+                    #"inReplyTo": obj.inReplyTo,
+                    "published": self.published,
+                    "updated": self.updated,
+                    #"replies": "",
+                    #"summary": "",
+                    #"tag": "",
+                    #"url": "",
+                    #"to": "",
+                    #"bto": "",
+                    #"cc": "",
+                    #"bcc": "",
+                    "mediaType": "text/html",
+           } 
 
 class Activity(models.Model):
     activity_type = [

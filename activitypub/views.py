@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+from http.client import HTTPResponse
 from django.db.models import ObjectDoesNotExist
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from app.models import Activity, Object, Actor
 import markdown
@@ -13,46 +14,10 @@ def object(request, uuid):
     obj = get_object_or_404(Object, id=uuid)
     match request.method:
         case "GET":
-            if obj.tomb:
-                return JsonResponse({
-                    "@context": "https://www.w3.org/ns/activitystreams",
-                    "type": "Tombstone",
-                    "id": reverse("object", args=[obj.id]),
-                    "formertype": "Note",
-
-                    "published": obj.published,
-                    "deleted": obj.updated,
-
-                })
+            if request.htmx:
+                pass
             else:
-                return JsonResponse({
-                    "@context": "https://www.w3.org/ns/activitystreams",
-                    "type": "Note",
-                    "id": reverse("object", args=[uuid]),
-                    #"attachment": "",
-                    "attributedTo": reverse("actor", args=[obj.attributedTo.actor.uuid]),
-                    #"audience": "",
-                    "content": obj.content,
-                    "source": {
-                        "content": obj.source,
-                        "mediaType": "text/markdown"
-                    },
-                    #"name": "",
-                    #"Image": "",
-                    #"inReplyTo": obj.inReplyTo,
-                    "published": obj.published,
-                    "updated": obj.updated,
-                    #"replies": "",
-                    #"summary": "",
-                    #"tag": "",
-                    #"url": "",
-                    #"to": "",
-                    #"bto": "",
-                    #"cc": "",
-                    #"bcc": "",
-                    "mediaType": "text/html",
-                    
-            })
+                return JsonResponse(obj.to_obj())
         case "POST":
             act_type = request.GET.get('type')
             match act_type:
@@ -68,47 +33,38 @@ def object(request, uuid):
                             actor=request.user,
                             object=reverse("activity", args=[interactions.id])
                         )
-                        print(interactions)
-
-                        print(undos)
                     except ObjectDoesNotExist:
                         interactions = None
                         undos = None
 
-
                     if interactions is None or undos:
-                        print("do")
                         activity = Activity.objects.create(
                             type=act_type,
                             actor=request.user,
                             object=reverse("object", args=[obj.id])
                         )
                     else:
-                        print("undo")
                         activity = Activity.objects.create(
                             type="Undo",
                             actor=request.user,
                             object=reverse("activity", args=[interactions.id])
                         )
-                    return redirect("index")
-
-                case "Delete":
-                    if request.user == obj.attributedTo:
-                        obj.entomb()
-                        activity = Activity.objects.create(
-                            type="Delete",
-                            actor=request.user,
-                            object=reverse("object", args=[obj.id])
-                        )
-                    else:
-                        return HttpResponseForbidden()
-
-                    return redirect("index")
+                    return redirect('index')
                 case _:
                     return HttpResponseBadRequest()
+        case "PATCH":
             pass
-        case "PUT":
-            pass
+        case "DELETE":
+            if request.user == obj.attributedTo:
+                obj.entomb()
+                activity = Activity.objects.create(
+                    type="Delete",
+                    actor=request.user,
+                    object=reverse("object", args=[obj.id])
+                )
+                return HttpResponse()
+            else:
+                return HttpResponseForbidden()
         case _:
             return HttpResponseNotAllowed(['GET'], b"bad")
 

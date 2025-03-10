@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% endcomment %}
 
 {% load app_extras %}
- <section>
+ <section class="object">
  <div>
    <a href="{% url 'profile' obj.attributedTo %}">
      {{ obj.attributedTo }}
@@ -14,31 +14,36 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
  <div>
 {{ obj.source | escape | md }}
- </div>
 
 {% if request.user.is_authenticated %}
- <div>
-   <a href="{% url 'post' %}">update</a>
-   <a href="#">delete</a>
-
-   <p>Reply</p>
-
-   <form method="post" action="{% url 'object' obj.id %}?type=Like">
-     {% csrf_token %}
-     <input type="submit" value="like">
-   </form>
-
-   <form method="post" action="{% url 'object' obj.id %}?type=Announce">
-     {% csrf_token %}
-     <input type="submit" value="boost">
-   </form>
-
-   <form method="post" action="{% url 'object' obj.id %}?type=Delete">
-     {% csrf_token %}
-     <input type="submit" value="delete">
-   </form>
-
-   <a href="{% url 'object' obj.id %}">link</a>
+<form method="post" action="{% url 'object' obj.id %}?type=Like">
+  {% csrf_token %}
+  <input type="submit" value="like">
+</form>
+<form method="post" action="{% url 'object' obj.id %}?type=Announce">
+  {% csrf_token %}
+  <input type="submit" value="boost">
+</form>
+<p>Reply</p>
+{% if request.user == obj.attributedTo %}
+<p
+  hx-delete="{% url 'object' obj.id %}"
+  hx-target="closest .object"
+  hx-confirm="Are you sure you wish to delete this post?"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+  Delete
+</p>
+<p
+  hx-get="{% url 'object' obj.id %}"
+  hx-target="closest .object"
+  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+  Update
+</p>
+<p>Object: <a href="{% url 'object' obj.id %}">link</a></p>
+{% endif %}
  </div>
 {% endif %}
+<hr />
 </section>

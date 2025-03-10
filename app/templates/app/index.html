@@ -8,12 +8,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 {% block body %}
  
-<hr/>
 {% for p in posts %}
 {% include 'app/obj.html' with obj=p %}
-<hr/>
 {% endfor %}
-
 {% if request.user.is_authenticated %}
 <p>Hello, {{ user.username }}!</p>
 <p>uuid, {{ user.actor.id }}</p>
