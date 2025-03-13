@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 from django.contrib.auth import login
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from app.forms import ActorForm, ObjectForm
@@ -75,8 +76,20 @@ def post(request, **kwargs):
         case _:
             return redirect("index")
 
-def profile(request):
-    return render(request, "app/profile.html")
+def profile(request, username):
+    return HttpResponse(f"{username}")
+
+def object(request, username, uuid):
+    return HttpResponse(f"{username}" - {uuid})
+
+def federated_profile(request, username, server):
+    return HttpResponse(f"{username} - {server}")
+
+def federated_object(request, username, server, uuid):
+    return HttpResponse(f"{username} - {server} - {uuid}")
 
 def account(request):
-    return render(request, "app/account.html")
+    return HttpResponse(f"account")
+
+def htmx(request):
+    return redirect('index')

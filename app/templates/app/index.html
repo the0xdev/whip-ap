@@ -7,15 +7,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% endcomment %}
 
 {% block body %}
- 
-{% for p in posts %}
-{% include 'app/obj.html' with obj=p %}
-{% endfor %}
 {% if request.user.is_authenticated %}
 <p>Hello, {{ user.username }}!</p>
 <p>uuid, {{ user.actor.id }}</p>
-<a href="{% url 'post' %}">post</a>
+<a hx-boost="true" href="{% url 'post' %}">post</a>
+
 {% else %}
 <p>Hello, World!</p>
 {% endif %}
+<hr/>
+{% for p in posts %}
+{% include 'app/obj.html' with obj=p %}
+{% endfor %}
 {% endblock %}

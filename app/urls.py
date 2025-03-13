@@ -28,13 +28,19 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
 
-    path("@<slug:username>", views.profile, name="profile"),
+    path("@<slug:username>/", views.profile, name="profile"),
+    path("@<slug:username>/<uuid:uuid>", views.object, name="object"),
+
+    path("@<slug:username>@<str:server>/", views.federated_profile, name="federated_profile"),
+    path("@<slug:username>@<str:server>/<uuid:uuid>", views.federated_object, name="federated_object"),
 
     path('post/', views.post, kwargs={"obj": Object}, name='post'),
 
     path("account/", views.account, name="account"),
     path("account/", include("django.contrib.auth.urls")),
     path('account/signup/', views.signup, name="signup"),
+
+    path('.htmx/', views.htmx, name="htmx"),
 
     path('', include("activitypub.urls")),
     path('', include("webfinger.urls")),

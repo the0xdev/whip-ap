@@ -13,35 +13,63 @@ SPDX-License-Identifier: AGPL-3.0-or-later
  </div>
 
  <div>
-{{ obj.source | escape | md }}
+{{ obj.content | safe }}
 
 {% if request.user.is_authenticated %}
-<form method="post" action="{% url 'object' obj.id %}?type=Like">
-  {% csrf_token %}
-  <input type="submit" value="like">
-</form>
-<form method="post" action="{% url 'object' obj.id %}?type=Announce">
-  {% csrf_token %}
-  <input type="submit" value="boost">
-</form>
-<p>Reply</p>
+<ul>
+  <li
+    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+    hx-vals="js:{...likeObj('{{ obj.id }}')}"
+    hx-swap="none"
+    >
+    Like
+  </li>
+  <li
+    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+    hx-vals="js:({{ obj.id }})"
+    hx-swap="none"
+    >
+    Boost 
+  </li>
+  <li
+    hx-get="{% url 'actor' request.user.actor.uuid %}/outbox"
+    hx-vals="js:({{ obj.id }})"
+    >
+    Reply
+  </li>
 {% if request.user == obj.attributedTo %}
-<p
-  hx-delete="{% url 'object' obj.id %}"
-  hx-target="closest .object"
-  hx-confirm="Are you sure you wish to delete this post?"
-  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-  >
-  Delete
-</p>
-<p
-  hx-get="{% url 'object' obj.id %}"
-  hx-target="closest .object"
-  hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-  >
-  Update
-</p>
+  <li
+    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+    hx-vals="js:{...deleteObj('{{ obj.id }}')}"
+    hx-confirm="Are you sure you wish to delete this post?"
+    >
+    Delete 
+  </li>
+  <li
+    hx-get="{% url 'actor' request.user.actor.uuid %}/outbox"
+    >
+    Edit 
+  </li>
+{% endif %}
+</ul>
+<!-- <a -->
+<!--   hx-delete="{% url 'actor' request.user.actor.uuid %}/outbox" -->
+<!--   hx-target="closest .object" -->
+<!--   hx-confirm="Are you sure you wish to delete this post?" -->
+<!--   hx-vals="js:deleteObj({{ obj.id }})" -->
+<!--   > -->
+<!--   Delete -->
+<!-- </a> -->
+<!-- <a -->
+<!--   hx-get="{% url 'object' obj.id %}" -->
+<!--   hx-target="closest .object" -->
+<!--   > -->
+<!--   Update -->
+<!-- </a> -->
+
+{% if DEBUG %}
 <p>Object: <a href="{% url 'object' obj.id %}">link</a></p>
+<p>Actor: <a href="{% url 'actor' obj.attributedTo.actor.uuid %}">link</a></p>
 {% endif %}
  </div>
 {% endif %}

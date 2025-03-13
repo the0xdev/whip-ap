@@ -5,7 +5,7 @@
 from http.client import HTTPResponse
 from django.db.models import ObjectDoesNotExist
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.urls import reverse
 from app.models import Activity, Object, Actor
 import markdown
@@ -131,20 +131,36 @@ def actor(request, uuid):
             return HttpResponseNotAllowed(['GET'], b"bad")
 
 def inbox(request, uuid):
-    act = Actor.objects.get(uuid=uuid)
+    act = get_object_or_404(Actor, uuid=uuid)
     return JsonResponse({
         "@context": "https://www.w3.org/ns/activitystreams",
         "type": "actor",
         "id": reverse("actor-outbox", args=[act.uuid]),
     })
+    
 
 def outbox(request, uuid):
-    actor = Actor.objects.get(uuid=uuid)
-    activity = Activity.objects.filter(actor=actor.id)
-    return JsonResponse({
-        "@context": "https://www.w3.org/ns/activitystreams",
-        "id": reverse("actor-inbox", args=[actor.uuid]),
-        "type": "OrderedCollection",
-        "totalItems": len(activity),
-        "items": [reverse("activity", args=[a.id]) for a in activity],
-    })
+    actor = get_object_or_404(Actor, uuid=uuid)
+    match request.method:
+        case "POST":
+
+            if request.content_type == 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' or request.content_type == "application/activity+json" or request.htmx and request.content_type == "application/x-www-form-urlencoded":
+                print(request.POST) 
+                return redirect('index')
+            else:
+                return HttpResponseBadRequest() 
+        case "GET":
+            activity = get_list_or_404(Activity, actor=actor.id)
+            print(request.content_type)
+            return JsonResponse(
+                {
+                    "@context": "https://www.w3.org/ns/activitystreams",
+                    "id": reverse("actor-inbox", args=[actor.uuid]),
+                    "type": "OrderedCollection",
+                    "totalItems": len(activity),
+                    "items": [reverse("activity", args=[a.id]) for a in activity],
+                }
+            )
+        case _:
+            return HttpResponseNotAllowed(['GET'], b"bad")
+

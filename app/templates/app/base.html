@@ -7,14 +7,58 @@
   <head>
     <title>whip-ap</title>
     <meta charset="utf-8">
-
     <script src="{% static 'htmx.js' %}"></script>
     {% django_htmx_script %}
+    <script src="{% static '_hs.js' %}"></script>
+    <script type="text/hyperscript">
+
+      {% if request.user.is_authenticated %}
+      def getCurrentActor()
+        return "{% url 'actor' request.user.actor.uuid %}"
+      end
+      def createActivity(type, obj)
+        return {
+	    "@context": "https://www.w3.org/ns/activitystreams",
+	    "type": type,
+	    "actor": getCurrentActor() + "/outbox",
+	    "object": obj,
+	}
+      end
+
+      def createObj(obj)
+        return createActivity("Create", obj)
+      end
+      def updateObj(obj)
+        return createActivity("Update", obj)
+      end
+      def deleteObj(obj)
+        return createActivity("Delete", obj)
+      end
+      def followActor(actor)
+        return createActivity("Follow", actor)
+      end
+      def addObj(obj)
+        return createActivity("Add", obj)
+      end
+      def removeObj(obj)
+        return createActivity("Remove", obj)
+      end
+      def likeObj(obj)
+        return createActivity("like", obj)
+      end
+      def blockActor(actor)
+        return createActivity("Block", actor)
+      end
+      def undoActivity(activity)
+        return createActivity("Undo", activity)
+      end
+      {% endif %}
+    </script>
   </head>
-  {% block navbar %}
-  {% include 'app/navbar.html' %}
-  {% endblock %}
-  <body>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% block navbar %}
+    {% include 'app/navbar.html' %}
+    {% endblock %}
     {% block body %} {% endblock %}
   </body>
 </html>

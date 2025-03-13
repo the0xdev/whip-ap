@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% endcomment %}
 
 {% block navbar %}
-<nav>
+<nav hx-boost="true" hx-push-url="true">
   <a href="{% url 'index' %}">Home</a>
   <a href="{% url 'signup' %}">signup</a>
   <a href="{% url 'login' %}">login</a>
