@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% if request.user.is_authenticated %}
 <p>Hello, {{ user.username }}!</p>
 <p>uuid, {{ user.actor.id }}</p>
-<a hx-boost="true" href="{% url 'post' %}">post</a>
+<a href="{% url 'post' %}">post</a>
 
 {% else %}
 <p>Hello, World!</p>

@@ -20,28 +20,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from app import views
-
-from app.models import Object
+from htmx import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-
-    path("@<slug:username>/", views.profile, name="profile"),
-    path("@<slug:username>/<uuid:uuid>", views.object, name="object"),
-
-    path("@<slug:username>@<str:server>/", views.federated_profile, name="federated_profile"),
-    path("@<slug:username>@<str:server>/<uuid:uuid>", views.federated_object, name="federated_object"),
-
-    path('post/', views.post, kwargs={"obj": Object}, name='post'),
-
-    path("account/", views.account, name="account"),
-    path("account/", include("django.contrib.auth.urls")),
-    path('account/signup/', views.signup, name="signup"),
-
-    path('', include("htmx.urls")),
-    path('', include("webfinger.urls")),
-    path('', include("activitypub.urls")),
-
+    path('.htmx/', views.htmx, name="htmx"),
 ]

@@ -145,8 +145,30 @@ def outbox(request, uuid):
         case "POST":
 
             if request.content_type == 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' or request.content_type == "application/activity+json" or request.htmx and request.content_type == "application/x-www-form-urlencoded":
-                print(request.POST) 
-                return redirect('index')
+              match request.POST.get('type'):
+                 case "Create":
+                     pass
+                 case "Update":
+                     pass
+                 case "Delete":
+                     pass
+                 case "Follow":
+                     pass
+                 case "Add":
+                     pass
+                 case "Remove":
+                     pass
+                 case "Like" | "Announce":
+                     pass
+                 case "Block":
+                     pass
+                 case "Undo":
+                     pass
+
+
+                 case _:
+                     return HttpResponseBadRequest() 
+            
             else:
                 return HttpResponseBadRequest() 
         case "GET":

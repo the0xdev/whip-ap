@@ -1,0 +1,29 @@
+{% comment 'SPDX-FileCopyrightText' %}
+SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+{% endcomment %}
+
+<form
+  hx-get="{% url 'htmx' %}?func=obj&id={{ id }}"
+  hx-swap="outerHTML"
+  >
+{% csrf_token %}
+{{ form.as_p }}
+<input
+  hx-confirm="are you sure you want to update your post?"
+  hx-post="{{ outbox }}"
+  hx-vals='updateObj("{{ id }}")'
+  hx-swap="none"
+  type="submit"
+  value="post"
+  >
+<input
+  type="submit"
+  value="Cancel"
+  >
+
+  <!-- hx-get="{% url 'htmx' %}?func=obj&id={{ id }}" -->
+  <!-- hx-target="closest form" -->
+  <!-- hx-swap="outerHTML" -->
+</form>

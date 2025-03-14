@@ -55,7 +55,7 @@
       {% endif %}
     </script>
   </head>
-  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-boost='true'>
     {% block navbar %}
     {% include 'app/navbar.html' %}
     {% endblock %}
