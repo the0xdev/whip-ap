@@ -5,77 +5,80 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {% endcomment %}
 
 {% load app_extras %}
- <section class="object">
- <div>
-   <a href="{% url 'profile' obj.attributedTo %}">
-     {{ obj.attributedTo }}
-   </a>
+
+<div class="card">
+ <div class="card-header">
+   <div class="card-header-title">
+     <a href="{% url 'profile' obj.attributedTo %}">
+       {{ obj.attributedTo }}
+     </a>
+   </div>
+ </div>
+ <div class="card-content">
+   <div class="content">
+     {{ obj.content | safe }}
+     {% if DEBUG %}
+     <p>Object: <a href="{% url 'object' obj.id %}">link</a></p>
+     <p>Actor: <a href="{% url 'actor' obj.attributedTo.actor.uuid %}">link</a></p>
+     {% endif %}
+   </div>
  </div>
 
- <div>
-{{ obj.content | safe }}
+ {% if request.user.is_authenticated %}
+ <footer class="card-footer">
+   <div
+     hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+     hx-vals="js:{...likeObj('{{ obj.id }}')}"
+     hx-swap="none"
 
-{% if request.user.is_authenticated %}
-<ul>
-  <li
-    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
-    hx-vals="js:{...likeObj('{{ obj.id }}')}"
-    hx-swap="none"
-    >
-    Like
-  </li>
-  <li
-    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
-    hx-vals="js:({{ obj.id }})"
-    hx-swap="none"
-    >
-    Boost 
-  </li>
-  <li
-    hx-get="{% url 'actor' request.user.actor.uuid %}/outbox"
-    hx-vals="js:({{ obj.id }})"
-    >
-    Reply
-  </li>
-{% if request.user == obj.attributedTo %}
-  <li
-    hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
-    hx-vals="js:{...deleteObj('{{ obj.id }}')}"
-    hx-confirm="Are you sure you wish to delete this post?"
-    hx-target="closest section"
-    hx-swap="delete"
-    >
-    Delete 
-  </li>
-  <li
-    hx-get="{% url 'htmx' %}?func=update&id={{ obj.id }}"
-    hx-target="closest section"
-    hx-swap="outerHTML"
-    >
-    Edit 
-  </li>
-{% endif %}
-</ul>
-<!-- <a -->
-<!--   hx-delete="{% url 'actor' request.user.actor.uuid %}/outbox" -->
-<!--   hx-target="closest .object" -->
-<!--   hx-confirm="Are you sure you wish to delete this post?" -->
-<!--   hx-vals="js:deleteObj({{ obj.id }})" -->
-<!--   > -->
-<!--   Delete -->
-<!-- </a> -->
-<!-- <a -->
-<!--   hx-get="{% url 'object' obj.id %}" -->
-<!--   hx-target="closest .object" -->
-<!--   > -->
-<!--   Update -->
-<!-- </a> -->
+     class="card-footer-item"
+     >
+     <span class="icon-text">
+       <span class="icon">
+	 <i class="fa-regular fa-comment"></i>
+       </span>
+       <span>like</span>
+     </span>
+   </div>
+   <div
+     hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+     hx-vals="js:({{ obj.id }})"
+     hx-swap="none"
 
-{% if DEBUG %}
-<p>Object: <a href="{% url 'object' obj.id %}">link</a></p>
-<p>Actor: <a href="{% url 'actor' obj.attributedTo.actor.uuid %}">link</a></p>
-{% endif %}
- </div>
-{% endif %}
-<hr />
-</section>
+     class="card-footer-item"
+     >
+     boost
+   </div>
+   <div
+     hx-get="{% url 'actor' request.user.actor.uuid %}/outbox"
+     hx-vals="js:({{ obj.id }})"
+
+     class="card-footer-item"
+     >
+     Reply
+   </div>
+   {% if request.user == obj.attributedTo %}
+   <div
+     hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
+     hx-vals="js:{...deleteObj('{{ obj.id }}')}"
+     hx-confirm="Are you sure you wish to delete this post?"
+     hx-target="closest section"
+     hx-swap="delete"
+
+     class="card-footer-item"
+     >
+     Delete 
+   </div>
+   <div
+     hx-get="{% url 'htmx' %}?func=update&id={{ obj.id }}"
+     hx-target="closest section"
+     hx-swap="outerHTML"
+
+     class="card-footer-item"
+     >
+     Edit 
+   </div>
+   {% endif %}
+ </footer>
+ {% endif %}
+</div>

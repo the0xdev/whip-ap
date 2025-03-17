@@ -7,20 +7,25 @@
   <head>
     <title>whip-ap</title>
     <meta charset="utf-8">
+    <link
+      rel="stylesheet"
+      href="{% static 'main.css' %}"
+      ></link>
+
     <script src="{% static 'htmx.js' %}"></script>
     {% django_htmx_script %}
+
+    <script src="{% static 'main._hs' %}" type="text/hyperscript"></script>
     <script src="{% static '_hs.js' %}"></script>
     <script type="text/hyperscript">
-
       {% if request.user.is_authenticated %}
       def getCurrentActor()
         return "{% url 'actor' request.user.actor.uuid %}"
       end
       def createActivity(type, obj)
         return {
-	    "@context": "https://www.w3.org/ns/activitystreams",
 	    "type": type,
-	    "actor": getCurrentActor() + "/outbox",
+	    "actor": getCurrentActor(),
 	    "object": obj,
 	}
       end
