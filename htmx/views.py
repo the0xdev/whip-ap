@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Imran M <imran@imranmustafa.net>
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
+
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404, get_list_or_404
 from django.urls import reverse
