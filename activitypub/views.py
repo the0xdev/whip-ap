@@ -9,6 +9,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from django.urls import reverse
 from app.models import Activity, Object, Actor
 import markdown
+import re
 from urllib.parse import urlparse
 
 def object(request, uuid):
@@ -164,7 +165,7 @@ def outbox(request, uuid):
                             actor=request.user,
                             object=reverse("object", args=[obj.id])
                         )
-                        return HttpResponse(status_code=200)
+                        return HttpResponse(status=200)
                     case "Follow":
                         pass
                     case "Add":
@@ -202,16 +203,27 @@ def content_type_check(content_type):
 
 def url_lookup(url):
     url = urlparse(url)
-    if id_check(url):
-        actors = Actor.objects.all()
-        activities = Activity.objects.all()
-        objects = Object.objects.all()
-        try:
-            return actors.union(activities, objects).get(url_id=url.geturl())
-        except:
-            return get_obj(url)
-    else:
-        raise ValueError()
+    match id_check(url):
+        case "Local":
+            path = re.search("actor|activity|object", url.path)
+            uuid = re.search("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", url.path)
+            print(path.group())
+            print(uuid)
+            if uuid and path:
+                try:
+                    match path.group():
+                        case "actor":
+                            return Actor.objects.get(uuid=uuid.group())
+                        case "activity":
+                            return Activity.objects.get(id=uuid.group())
+                        case "object":
+                            return Object.objects.get(id=uuid.group())
+                except:
+                    pass 
+        case "Federated":
+            pass
+    raise ValueError()
+
 def check_obj(obj):
     if type(obj) is str: # simple url ref to object
         return url_lookup(obj)
@@ -231,7 +243,13 @@ def check_obj(obj):
 
 def id_check(id):
     # TODO remove the True when this code actually runs on a server
-    return True or id.scheme in ["http", "https"] and id.netloc != "" and id.path != "" and id.hostname 
+    if True or id.scheme in ["http", "https"] and id.netloc != "" and id.hostname and id.path != "":
+
+        if True:
+            return "Local"
+        else:
+            return "Federated"
+    return "Invalid"
 
 def get_obj(url):
     pass
