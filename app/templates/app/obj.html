@@ -59,10 +59,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
    </div>
    {% if request.user == obj.attributedTo %}
    <div
-     hx-post="{% url 'actor' request.user.actor.uuid %}/outbox"
-     hx-vals="js:{...deleteObj('{{ obj.id }}')}"
+     hx-post="{% url 'actor-outbox' request.user.actor.uuid %}"
+     hx-vals="js:{...deleteObj('{{ obj.url_id }}')}"
      hx-confirm="Are you sure you wish to delete this post?"
-     hx-target="closest section"
+     hx-target="closest div.card"
      hx-swap="delete"
 
      class="card-footer-item"

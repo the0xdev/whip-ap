@@ -9,6 +9,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from django.urls import reverse
 from app.models import Activity, Object, Actor
 import markdown
+from urllib.parse import urlparse
 
 def object(request, uuid):
     obj = get_object_or_404(Object, id=uuid)
@@ -141,34 +142,43 @@ def inbox(request, uuid):
 
 def outbox(request, uuid):
     actor = get_object_or_404(Actor, uuid=uuid)
+    print(request.body)
     match request.method:
         case "POST":
-
-            if request.content_type == 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' or request.content_type == "application/activity+json" or request.htmx and request.content_type == "application/x-www-form-urlencoded":
-              match request.POST.get('type'):
-                 case "Create":
-                     pass
-                 case "Update":
-                     pass
-                 case "Delete":
-                     pass
-                 case "Follow":
-                     pass
-                 case "Add":
-                     pass
-                 case "Remove":
-                     pass
-                 case "Like" | "Announce":
-                     pass
-                 case "Block":
-                     pass
-                 case "Undo":
-                     pass
-
-
-                 case _:
-                     return HttpResponseBadRequest() 
-            
+            if content_type_check(request.content_type):
+                try:
+                    obj = check_obj(request.POST.get('object'))
+                except Exception as e:
+                    print(e)
+                    return HttpResponseBadRequest()
+                print(obj)
+                match request.POST.get('type'):
+                    case "Create":
+                        pass
+                    case "Update":
+                        pass
+                    case "Delete":
+                        obj.entomb()
+                        activity = Activity.objects.create(
+                            type="Delete",
+                            actor=request.user,
+                            object=reverse("object", args=[obj.id])
+                        )
+                        return HttpResponse(status_code=200)
+                    case "Follow":
+                        pass
+                    case "Add":
+                        pass
+                    case "Remove":
+                        pass
+                    case "Like" | "Announce":
+                        pass
+                    case "Block":
+                        pass
+                    case "Undo":
+                        pass
+                    case _:
+                        return HttpResponseBadRequest() 
             else:
                 return HttpResponseBadRequest() 
         case "GET":
@@ -185,4 +195,45 @@ def outbox(request, uuid):
             )
         case _:
             return HttpResponseNotAllowed(['GET'], b"bad")
+
+
+def content_type_check(content_type):
+    return content_type == 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'or content_type == "application/activity+json" or content_type == "application/x-www-form-urlencoded"
+
+def url_lookup(url):
+    url = urlparse(url)
+    if id_check(url):
+        actors = Actor.objects.all()
+        activities = Activity.objects.all()
+        objects = Object.objects.all()
+        try:
+            return actors.union(activities, objects).get(url_id=url.geturl())
+        except:
+            return get_obj(url)
+    else:
+        raise ValueError()
+def check_obj(obj):
+    if type(obj) is str: # simple url ref to object
+        return url_lookup(obj)
+    elif type(obj) is dict: # embedded object
+
+        if type(id := obj.get("id")) is str: # check for object id
+            return url_lookup(id)
+        elif type(kind := obj.get("type")) is str and type(object := obj.get("object")) is str: # try and find object based on context
+            try:
+                return Activity.objects.filter(type=kind, object=object).get() # search for activity
+            except:
+                raise ValueError("object not found")
+        else:
+            raise ValueError("object not compliant")
+    else:
+        raise TypeError("no object given.")
+
+def id_check(id):
+    # TODO remove the True when this code actually runs on a server
+    return True or id.scheme in ["http", "https"] and id.netloc != "" and id.path != "" and id.hostname 
+
+def get_obj(url):
+    pass
+
 

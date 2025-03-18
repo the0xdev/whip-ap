@@ -17,6 +17,10 @@ class Actor(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid4, editable=False)
     # key  = None
 
+    @property
+    def url_id(self):
+        return reverse('actor', args=[self.uuid])
+
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
@@ -25,6 +29,7 @@ class Actor(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.actor.save()
+
 
 class Object(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -100,6 +105,9 @@ class Object(models.Model):
                     #"bcc": "",
                     "mediaType": "text/html",
            } 
+    @property
+    def url_id(self):
+        return reverse('object', args=[self.id])
 
 class Activity(models.Model):
     activity_type = [
@@ -125,3 +133,7 @@ class Activity(models.Model):
     object = models.URLField(max_length=256)
 
     published = models.DateTimeField(auto_now_add=True) 
+
+    @property
+    def url_id(self):
+        return reverse('activity', args=[self.id])
